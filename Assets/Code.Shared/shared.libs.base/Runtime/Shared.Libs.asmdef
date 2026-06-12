@@ -1,0 +1,20 @@
+{
+  "name": "Shared.Libs",
+  "rootNamespace": "Shared.Libs",
+  "references": [
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Newtonsoft.Json.dll",
+    "Sirenix.OdinInspector.Attributes.dll",
+    "ZLinq.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

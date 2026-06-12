@@ -1,0 +1,27 @@
+{
+  "name": "Client.Libs.UI",
+  "rootNamespace": "Client.Libs.UI",
+  "references": [
+    "Unity.TextMeshPro",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "UniTask",
+    "Zenject",
+    "TriInspector",
+    "Client.Libs",
+    "Client.Libs.Networking",
+    "Shared.Libs"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "DOTween.dll",
+    "DOTweenPro.dll",
+    "Zenject-usage.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

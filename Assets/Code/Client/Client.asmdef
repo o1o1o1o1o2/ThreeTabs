@@ -1,0 +1,27 @@
+{
+    "name": "Client",
+    "rootNamespace": "Client",
+    "references": [
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "UniTask",
+        "Zenject",
+        "Shared.Libs",
+        "Client.Libs.UI",
+        "Client.Libs.GameState",
+        "Client.Libs.Networking",
+        "Client.Libs"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "Zenject-usage.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

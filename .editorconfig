@@ -1,0 +1,203 @@
+#===========================================#
+# C# Code Style (G4 Game Project)           #
+#===========================================#
+# EditorConfig reference:     https://editorconfig.org
+# Rider / EditorConfig index: https://www.jetbrains.com/help/rider/EditorConfig_Index.html
+# Rider usage guide:          https://www.jetbrains.com/help/rider/Using_EditorConfig.html
+# .NET code-style options:    https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options
+#===========================================#
+
+root = true
+
+#===========================================
+# Core / Editor defaults
+#===========================================
+
+[*]
+
+# Basic editor defaults
+indent_style = space
+insert_final_newline = false
+
+#===========================================
+# Markdown files
+#===========================================
+
+[*.md]
+
+indent_size = 2
+
+#===========================================
+# C# files
+#===========================================
+
+[*.cs]
+
+# Basic editor defaults
+indent_size = 4
+trim_trailing_whitespace = true
+
+# ------------------------------------------
+# Code-style / analysis
+# ------------------------------------------
+
+# Verify that namespace matches the folder structure
+resharper_check_namespace_highlighting = suggestion
+
+# Hint if Type/member can be made internal
+resharper_member_can_be_internal_highlighting = hint
+
+# require explicit accessibility modifiers for non-interface members
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
+resharper_redundant_using_directive_highlighting = suggestion
+
+# discourage 'this.' qualification
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+
+# expression-bodied members when single-line
+csharp_style_expression_bodied_methods = when_on_single_line:hint
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+
+# var preferences
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+
+# simplified boolean/default expressions
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+csharp_prefer_simple_default_expression = true:suggestion
+
+# use string interpolation
+resharper_use_string_interpolation_highlighting = hint
+
+# ------------------------------------------
+# Usings & ordering
+# ------------------------------------------
+
+dotnet_sort_system_directives_first = true
+
+# class is never instantiated
+resharper_class_never_instantiated_global_highlighting = hint
+
+# ------------------------------------------
+# Braces / Line breaks / Spacing
+# ------------------------------------------
+
+# Allow formatter to change previously existing embedded layout (otherwise "keep existing" may block changes)
+csharp_keep_existing_embedded_arrangement = false
+
+# Ensure embedded statements (e.g. `if (x) return;`) are moved to next line
+csharp_place_simple_embedded_statement_on_same_line = never
+
+# Allow attributes to remain on the same line when the owner (field) is single-line,
+# but do not force "always" — keeps original single-line fields intact.
+csharp_place_field_attribute_on_same_line = if_owner_is_single_line
+resharper_csharp_place_field_attribute_on_same_line = if_owner_is_single_line
+
+# Preserve existing attribute arrangement / line breaks for attributes when reformatting.
+# This prevents the formatter from inserting or removing blank lines in mixed-attribute layouts.
+csharp_keep_existing_attribute_arrangement = true
+resharper_csharp_keep_existing_attribute_arrangement = true
+
+# Avoid single-line members (accessors/methods/declaration blocks)
+csharp_place_simple_accessor_on_single_line = false
+csharp_place_simple_method_on_single_line = false
+#csharp_place_simple_declaration_blocks_on_single_line = false
+
+# Place expression body on a new line for methods
+csharp_place_expr_method_on_single_line = false
+# Keep property on one line if the owner is single-line
+csharp_place_expr_property_on_single_line = if_owner_is_single_line
+
+# Do not add empty lines around fields
+csharp_blank_lines_around_field = 0
+
+# No blank lines between consecutive single-line type declarations (e.g., delegates, short records, interfaces)
+resharper_csharp_blank_lines_around_single_line_type = 0
+
+# Casts without space: (Type)value
+csharp_space_between_typecast_parentheses = false
+csharp_space_after_cast = false
+
+# BSD/Allman style: place opening braces on a new line for all constructs
+csharp_new_line_before_open_brace = all
+
+# Place keywords at new line after the closing brace
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# ------------------------------------------
+# Naming
+# ------------------------------------------
+
+# private + protected fields — _underscoredCamelCase
+dotnet_naming_symbols.fields.applicable_kinds = field
+dotnet_naming_symbols.fields.applicable_accessibilities = private, protected, private_protected
+dotnet_naming_style.field_style.capitalization = camel_case
+dotnet_naming_style.field_style.required_prefix = _
+dotnet_naming_rule.fields_should_be_underscored.symbols = fields
+dotnet_naming_rule.fields_should_be_underscored.style = field_style
+dotnet_naming_rule.fields_should_be_underscored.severity = warning
+
+# properties — PascalCase
+dotnet_naming_symbols.properties.applicable_kinds = property
+dotnet_naming_style.pascal_style.capitalization = pascal_case
+dotnet_naming_rule.properties_pascalcase.symbols = properties
+dotnet_naming_rule.properties_pascalcase.style = pascal_style
+dotnet_naming_rule.properties_pascalcase.severity = error
+
+# methods — PascalCase
+dotnet_naming_symbols.methods.applicable_kinds = method
+dotnet_naming_rule.methods_pascalcase.symbols = methods
+dotnet_naming_rule.methods_pascalcase.style = pascal_style
+dotnet_naming_rule.methods_pascalcase.severity = error
+
+# locals & parameters — camelCase
+dotnet_naming_symbols.locals.applicable_kinds = local, parameter
+dotnet_naming_style.camel_style.capitalization = camel_case
+dotnet_naming_rule.locals_camelcase.symbols = locals
+dotnet_naming_rule.locals_camelcase.style = camel_style
+dotnet_naming_rule.locals_camelcase.severity = warning
+
+# static fields - PascalCase
+dotnet_naming_symbols.static_fields.applicable_kinds = field
+dotnet_naming_symbols.static_fields.applicable_accessibilities = private, protected, private_protected
+dotnet_naming_symbols.static_fields.required_modifiers = static
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+dotnet_naming_rule.static_fields_should_be_pascal.symbols = static_fields
+dotnet_naming_rule.static_fields_should_be_pascal.style = pascal_case_style
+dotnet_naming_rule.static_fields_should_be_pascal.severity = warning
+
+# constants — SCREAMING_SNAKE_CASE
+dotnet_naming_style.snake.capitalization = all_upper
+dotnet_naming_style.snake.word_separator = _
+# Symbols: Only private and internal constants
+# This ignores Enums because they are always public
+dotnet_naming_symbols.private_consts.applicable_kinds = field
+dotnet_naming_symbols.private_consts.required_modifiers = const
+dotnet_naming_symbols.private_consts.applicable_accessibilities = private, internal
+# Rule: Apply snake_case only to those private consts
+dotnet_naming_rule.constants_snake.symbols = private_consts
+dotnet_naming_rule.constants_snake.style = snake
+dotnet_naming_rule.constants_snake.severity = error
+
+# Unity: private serialized fields ([SerializeField]) should be _camelCase
+# This rule will be visible to Roslyn as a private-field rule, and Rider/Resharper
+# will import and apply it specifically to Unity serialized fields.
+dotnet_naming_symbols.unity_serialized_field_symbols.applicable_kinds = field
+dotnet_naming_symbols.unity_serialized_field_symbols.applicable_accessibilities = private
+# Naming style: underscore + camelCase
+dotnet_naming_style._camel_with_underscore.capitalization = camel_case
+dotnet_naming_style._camel_with_underscore.required_prefix = _
+# Naming rule wiring
+dotnet_naming_rule.unity_serialized_field_rule.symbols = unity_serialized_field_symbols
+dotnet_naming_rule.unity_serialized_field_rule.style = _camel_with_underscore
+dotnet_naming_rule.unity_serialized_field_rule.severity = warning
+# Ask Rider/Resharper to import/apply this rule to its internal "Unity serialized field" group
+# (these keys are vendor metadata used by Rider/ReSharper; they are ignored by dotnet-format)
+dotnet_naming_rule.unity_serialized_field_rule.import_to_resharper = True
+dotnet_naming_rule.unity_serialized_field_rule.resharper_description = Unity serialized field
+dotnet_naming_rule.unity_serialized_field_rule.resharper_guid = 5f0fdb63-c892-4d2c-9324-15c80b22a7ef
