@@ -6,8 +6,5 @@ namespace Client.Libs.UI.Contracts
     {
         void LockScreen(ScreenLockTag tag);
         void UnlockScreen(ScreenLockTag tag);
-
-        void AddUnlocker(ScreenLockTag tag);
-        void RemoveUnlocker(ScreenLockTag tag);
     }
 }

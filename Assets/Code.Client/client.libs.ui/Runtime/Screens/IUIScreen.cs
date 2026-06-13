@@ -25,7 +25,7 @@ namespace Client.Libs.UI.Screens
         void Close();
         internal UniTask OpenInternal(Func<UniTask> setVisible, bool forceRefresh = false);
         UniTask CloseAsync();
-        internal UniTask CloseInternal(Action doAfterHide = null);
+        internal UniTask CloseInternal(Func<UniTask> doAfterHide = null);
     }
 
     public interface IUiScreenWithResult

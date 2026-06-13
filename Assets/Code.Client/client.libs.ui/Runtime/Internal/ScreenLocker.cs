@@ -11,7 +11,6 @@ namespace Client.Libs.UI.Internal
     internal sealed class ScreenLocker : IScreenLocker, IDisposable
     {
         private readonly HashSet<ScreenLockTag> _lockers = new();
-        private readonly HashSet<ScreenLockTag> _unlockers = new();
         private readonly UIScreenLockView _view;
         private CancellationTokenSource _delayCts;
 
@@ -22,7 +21,7 @@ namespace Client.Libs.UI.Internal
             _view.SetLockerVisible(false);
         }
 
-        private bool IsLocked => _lockers.Count > 0 && _unlockers.Count == 0;
+        private bool IsLocked => _lockers.Count > 0;
 
         public void Dispose() => CancelDelay();
 
@@ -32,37 +31,10 @@ namespace Client.Libs.UI.Internal
             UpdateView();
         }
 
-        public void LockScreen(ScreenLockTag tag, UnityEngine.Component target) => LockScreen(tag);
-
         public void UnlockScreen(ScreenLockTag tag)
         {
             _lockers.Remove(tag);
             UpdateView();
-        }
-
-        public void UnlockAll()
-        {
-            _lockers.Clear();
-            _unlockers.Clear();
-            UpdateView();
-        }
-
-        public void AddUnlocker(ScreenLockTag tag)
-        {
-            _unlockers.Add(tag);
-            UpdateView();
-        }
-
-        public void RemoveUnlocker(ScreenLockTag tag)
-        {
-            _unlockers.Remove(tag);
-            UpdateView();
-        }
-
-        public IDisposable LockScope(ScreenLockTag tag)
-        {
-            LockScreen(tag);
-            return new LockScopeInternal(() => UnlockScreen(tag));
         }
 
         private void UpdateView()
@@ -101,14 +73,6 @@ namespace Client.Libs.UI.Internal
             _delayCts?.Cancel();
             _delayCts?.Dispose();
             _delayCts = null;
-        }
-
-        private sealed class LockScopeInternal : IDisposable
-        {
-            private readonly Action _callback;
-
-            public LockScopeInternal(Action callback) => _callback = callback;
-            public void Dispose() => _callback.Invoke();
         }
     }
 }

@@ -21,8 +21,8 @@ namespace Client.Dogs.UI
         private readonly DogBreedDetailsPopupState _popupState;
 
         private CancellationTokenSource _cts;
-        private IQueuedRequestHandle<IReadOnlyList<DogBreedModel>> _breedsRequest;
-        private IQueuedRequestHandle<DogBreedDetailsModel> _dogDetailsRequest;
+        private IQueuedRequestHandle<IReadOnlyList<DogBreedModel>> _breedsRequestHandle;
+        private IQueuedRequestHandle<DogBreedDetailsModel> _dogDetailsRequestHandle;
 
         public DogsTabScreen(
             DogsTabScreenView screenView,
@@ -38,6 +38,8 @@ namespace Client.Dogs.UI
 
         public override ScreenStyle Style => ScreenStyle.Default;
 
+        private CancellationToken LifetimeToken => _cts?.Token ?? CancellationToken.None;
+
         protected override UniTask OnOpenAsync()
         {
             _cts = new CancellationTokenSource();
@@ -49,12 +51,13 @@ namespace Client.Dogs.UI
         protected override async UniTask OnCloseAsync()
         {
             _screenView.DogBreedSelected -= OnDogBreedSelected;
+
             _cts?.Cancel();
             _cts?.Dispose();
             _cts = null;
 
-            _breedsRequest?.Cancel();
-            _dogDetailsRequest?.Cancel();
+            _breedsRequestHandle?.Cancel();
+            _dogDetailsRequestHandle?.Cancel();
 
             await ScreenManager.Screen<DogBreedDetailsPopupScreen>().Close();
         }
@@ -63,7 +66,7 @@ namespace Client.Dogs.UI
         {
             _screenView.SetDogsStatus("Loading breeds...");
             var request = _dogBreedsApi.GetBreeds(BREED_LIMIT);
-            _breedsRequest = request;
+            _breedsRequestHandle = request;
 
             try
             {
@@ -80,23 +83,30 @@ namespace Client.Dogs.UI
             }
             finally
             {
-                if (ReferenceEquals(_breedsRequest, request))
-                    _breedsRequest = null;
+                if (ReferenceEquals(_breedsRequestHandle, request))
+                    _breedsRequestHandle = null;
             }
         }
 
-        private async void OnDogBreedSelected(DogBreedModel breedModel)
-        {
-            await ScreenManager.Screen<DogBreedDetailsPopupScreen>().Close();
+        private void OnDogBreedSelected(DogBreedModel breedModel) =>
+            SelectDogBreedAsync(breedModel, LifetimeToken).Forget();
 
-            _dogDetailsRequest?.Cancel();
+        private async UniTaskVoid SelectDogBreedAsync(DogBreedModel breedModel, CancellationToken ct)
+        {
+            if (breedModel == null)
+                return;
+
+            _dogDetailsRequestHandle?.Cancel();
+            await ScreenManager.Screen<DogBreedDetailsPopupScreen>().Close();
+            ct.ThrowIfCancellationRequested();
+
             var request = _dogBreedsApi.GetBreedDetails(breedModel);
-            _dogDetailsRequest = request;
+            _dogDetailsRequestHandle = request;
             _screenView.SetDogsStatus($"Loading {breedModel.Name}...");
 
             try
             {
-                var details = await request.Task.AttachExternalCancellation(_cts.Token);
+                var details = await request.Task.AttachExternalCancellation(ct);
                 _screenView.SetDogsStatus(string.Empty);
                 _popupState.Set(details);
                 await ScreenManager.Screen<DogBreedDetailsPopupScreen>().Open();
@@ -110,8 +120,8 @@ namespace Client.Dogs.UI
             }
             finally
             {
-                if (ReferenceEquals(_dogDetailsRequest, request))
-                    _dogDetailsRequest = null;
+                if (ReferenceEquals(_dogDetailsRequestHandle, request))
+                    _dogDetailsRequestHandle = null;
             }
         }
     }

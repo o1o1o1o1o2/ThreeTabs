@@ -4,12 +4,13 @@ using Client.Libs.UI.Types;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace Client.Libs.UI.Internal
 {
     internal class UIScreenInfo
     {
+        private const int ALWAYS_ON_TOP_PRIORITY_OFFSET = 100000;
+
         public int VisualOrder { get; set; }
 
         public UIScreenPresenter ScreenPresenter { get; private set; }
@@ -20,10 +21,8 @@ namespace Client.Libs.UI.Internal
 
         public bool IsFullscreen => ScreenPresenter != null && ScreenPresenter.Style.HasFlag(ScreenStyle.FullScreen);
         public bool IsAlwaysOnTop => ScreenPresenter != null && ScreenPresenter.Style.HasFlag(ScreenStyle.AlwaysOnTop);
-        public int Priority => IsAlwaysOnTop ? int.MaxValue : VisualOrder;
+        public int Priority => IsAlwaysOnTop ? ALWAYS_ON_TOP_PRIORITY_OFFSET + VisualOrder : VisualOrder;
 
-        private readonly GraphicRaycaster[] _raycasters;
-        private readonly CanvasGroup[] _groups;
         private readonly UIScreenView _view;
 
         public UIScreenInfo(UIScreenView view, Scene scene, Camera[] cameras)
@@ -32,18 +31,6 @@ namespace Client.Libs.UI.Internal
             Scene = scene;
             _view = view;
 
-            var roots = scene.GetRootGameObjects();
-
-            _raycasters = roots
-                .SelectMany(x => x.GetComponentsInChildren<GraphicRaycaster>(true))
-                .Distinct()
-                .ToArray();
-
-            _groups = roots
-                .SelectMany(x => x.GetComponentsInChildren<CanvasGroup>(true))
-                .Distinct()
-                .ToArray();
-
             Cameras = cameras.Where(x => x != null).Distinct().ToArray();
             foreach (var camera in Cameras)
                 camera.enabled = false;
@@ -51,16 +38,6 @@ namespace Client.Libs.UI.Internal
 
         public UniTask VisibleChanged(bool visible)
         {
-            foreach (var raycaster in _raycasters)
-                if (raycaster)
-                    raycaster.enabled = visible;
-
-            foreach (var x in _groups)
-            {
-                if (x)
-                    x.blocksRaycasts = visible;
-            }
-
             if (_view)
                 _view.CamerasVisibleChanged(visible);
             return UniTask.CompletedTask;

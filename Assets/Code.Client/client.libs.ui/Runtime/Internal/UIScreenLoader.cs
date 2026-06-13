@@ -19,7 +19,10 @@ namespace Client.Libs.UI.Internal
 {
     internal sealed class UIScreenLoader : IDisposable, IContainerListener
     {
-        private DiContainer Container => _containers.Last();
+        private DiContainer Container => _containers.Count > 0
+            ? _containers[^1]
+            : throw new InvalidOperationException($"{nameof(UIScreenLoader)} has no active {nameof(DiContainer)}.");
+
         private readonly List<DiContainer> _containers = new(4);
 
         private readonly SemaphoreSlim _loadingLock = new(1, 1);
@@ -36,6 +39,9 @@ namespace Client.Libs.UI.Internal
 
             await LoadIfNotLoaded(viewType);
             var screenInfo = LoadedScreens.GetValueOrDefault(viewType);
+            if (screenInfo == null)
+                return null;
+
             if (screenInfo.ScreenPresenter != null)
                 return screenInfo;
 
@@ -75,7 +81,7 @@ namespace Client.Libs.UI.Internal
                     return;
                 }
 
-                if (LoadedScreens.TryGetValue(viewType, out var oldScreen))
+                if (LoadedScreens.TryGetValue(viewType, out _))
                 {
                     Debug.LogError($"Scene with name:{sceneName} contains screen with the same type:{viewType} already loaded in scene {scene.name}");
                     return;
@@ -113,12 +119,6 @@ namespace Client.Libs.UI.Internal
             }
         }
 
-        public async UniTask UnloadAll(IList<Type> exceptList = null)
-        {
-            foreach (var type in LoadedScreens.Keys.Where(x => !exceptList?.Contains(x) ?? true).ToArray())
-                await Unload(type);
-        }
-
         private void InjectToWidgets(Scene scene)
         {
             var container = Container;
@@ -142,6 +142,17 @@ namespace Client.Libs.UI.Internal
 
             var gameObjectsToRemove = parent.GetComponentsInChildren<T>(true).Select(x => x.gameObject).Distinct().ToArray();
             foreach (var gameObject in gameObjectsToRemove)
+                DestroyGameObject(gameObject);
+        }
+
+        private static void DestroyGameObject(GameObject gameObject)
+        {
+            if (!gameObject)
+                return;
+
+            if (Application.isPlaying)
+                Object.Destroy(gameObject);
+            else
                 Object.DestroyImmediate(gameObject);
         }
 

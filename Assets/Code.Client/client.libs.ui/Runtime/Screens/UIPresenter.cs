@@ -58,7 +58,7 @@ namespace Client.Libs.UI.Screens
             }
         }
 
-        internal async UniTask CloseInternal(Action doAfterHide = null)
+        internal async UniTask CloseInternal(Func<UniTask> doAfterHide = null)
         {
             while (State != ScreenState.Visible && State != ScreenState.Hidden)
                 await UniTask.DelayFrame(1);
@@ -71,7 +71,8 @@ namespace Client.Libs.UI.Screens
             try
             {
                 await OnCloseAsync();
-                doAfterHide?.Invoke();
+                if (doAfterHide != null)
+                    await doAfterHide.Invoke();
                 await ScreenView.HideScreenAsync();
                 State = ScreenState.Hidden;
             }
@@ -86,7 +87,7 @@ namespace Client.Libs.UI.Screens
         public UniTask CloseAsync() => ScreenManager.CloseLast(GetType());
 
         UniTask IUIScreen.OpenInternal(Func<UniTask> setVisible, bool forceRefresh) => OpenInternal(setVisible, forceRefresh);
-        UniTask IUIScreen.CloseInternal(Action doAfterHide) => CloseInternal(doAfterHide);
+        UniTask IUIScreen.CloseInternal(Func<UniTask> doAfterHide) => CloseInternal(doAfterHide);
 
         protected virtual UniTask OnOpenAsync() => UniTask.CompletedTask;
         protected virtual UniTask OnCloseAsync() => UniTask.CompletedTask;

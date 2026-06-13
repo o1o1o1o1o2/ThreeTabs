@@ -10,8 +10,8 @@ namespace Client.Libs.Networking
 
         public MappedQueuedRequestHandle(IQueuedRequestHandle<TSource> source, Func<TSource, TResult> map)
         {
-            _source = source;
-            _map = map;
+            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
         public string DebugName => _source.DebugName;

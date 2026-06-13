@@ -16,6 +16,9 @@ namespace Client.UI
         private readonly MainTabsScreenView _view;
         private readonly IScreenManager _screenManager;
         private Type _activeTabScreenType;
+        private TabId? _pendingTabId;
+        private bool _isSwitchingTab;
+        private bool _isClosing;
 
         public MainTabsScreen(MainTabsScreenView view, IScreenManager screenManager) : base(view, screenManager)
         {
@@ -27,6 +30,7 @@ namespace Client.UI
 
         protected override UniTask OnOpenAsync()
         {
+            _isClosing = false;
             _view.TabSelected += OnTabSelected;
             OnTabSelected(TabId.Clicker);
             return UniTask.CompletedTask;
@@ -34,7 +38,12 @@ namespace Client.UI
 
         protected override async UniTask OnCloseAsync()
         {
+            _isClosing = true;
+            _pendingTabId = null;
             _view.TabSelected -= OnTabSelected;
+
+            while (_isSwitchingTab)
+                await UniTask.NextFrame();
 
             if (_activeTabScreenType != null)
             {
@@ -44,10 +53,39 @@ namespace Client.UI
         }
 
         private void OnTabSelected(TabId tabId) =>
-            SwitchTab(tabId).Forget();
+            RequestSwitchTab(tabId).Forget();
 
-        private async UniTaskVoid SwitchTab(TabId tabId)
+        private async UniTaskVoid RequestSwitchTab(TabId tabId)
         {
+            if (_isClosing)
+                return;
+
+            _pendingTabId = tabId;
+
+            if (_isSwitchingTab)
+                return;
+
+            _isSwitchingTab = true;
+            try
+            {
+                while (_pendingTabId.HasValue && !_isClosing)
+                {
+                    var nextTabId = _pendingTabId.Value;
+                    _pendingTabId = null;
+                    await SwitchTab(nextTabId);
+                }
+            }
+            finally
+            {
+                _isSwitchingTab = false;
+            }
+        }
+
+        private async UniTask SwitchTab(TabId tabId)
+        {
+            if (_isClosing)
+                return;
+
             _view.SetActiveTab(tabId);
             var nextTabScreenType = GetTabScreenType(tabId);
 
@@ -56,6 +94,9 @@ namespace Client.UI
 
             if (_activeTabScreenType != null)
                 await _screenManager.CloseLast(_activeTabScreenType);
+
+            if (_isClosing)
+                return;
 
             _activeTabScreenType = nextTabScreenType;
             await OpenTab(tabId);

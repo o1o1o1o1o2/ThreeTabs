@@ -136,11 +136,12 @@ namespace Client.Libs.Networking
             public string DebugName { get; }
             public bool IsStarted { get; private set; }
             public bool IsCanceled { get; private set; }
+            private bool IsCompleted { get; set; }
             public UniTask<T> Task => _completion.Task;
 
             public void Cancel()
             {
-                if (IsCanceled)
+                if (IsCanceled || IsCompleted)
                     return;
 
                 IsCanceled = true;
@@ -148,13 +149,18 @@ namespace Client.Libs.Networking
 
                 if (IsStarted)
                     return;
+
                 _removeQueued.Invoke(this);
                 _completion.TrySetCanceled(_cts.Token);
+                IsCompleted = true;
                 _cts.Dispose();
             }
 
             public async UniTask ExecuteAsync()
             {
+                if (IsCanceled)
+                    return;
+
                 IsStarted = true;
 
                 try
@@ -173,6 +179,7 @@ namespace Client.Libs.Networking
                 }
                 finally
                 {
+                    IsCompleted = true;
                     _cts.Dispose();
                 }
             }

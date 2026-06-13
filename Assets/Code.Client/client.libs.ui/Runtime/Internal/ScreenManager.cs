@@ -104,7 +104,7 @@ namespace Client.Libs.UI.Internal
                 if (!_historyStack.Remove(screenStackEntry))
                     return;
 
-                await screenStackEntry.ScreenInfo.ScreenPresenter.CloseInternal(() => SetObjectsVisible(screenStackEntry.ScreenInfo, false).Forget());
+                await screenStackEntry.ScreenInfo.ScreenPresenter.CloseInternal(() => SetObjectsVisible(screenStackEntry.ScreenInfo, false));
                 screenStackEntry.Close();
 
                 await UpdateVisualStack();
